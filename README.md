@@ -1,34 +1,63 @@
-# Проект YaMDb
+# Запуск docker-compose
 ## Описание проекта
-- Проект YaMDb собирает отзывы пользователей на произведения.
-- Произведения делятся на категории: Музыка, Фильмы, Книги.
-- Список категорий может быть расширен администратором.
-- Произведению может быть присвоен жанр из списка предустановленных. Новые жанры может создавать только администратор.
-- Пользователи могут ставить произведениям оценки что в дальнейшем повлияет на усреднённый рейтинг произведения.
-
+Приложение YaMDb состоит из нескольких сервисов, запущеные в разных, связанных контейнерах:
+- База Данных PostgreSQL
+- Nginx и Gunicorn
+- [Django-проект YaMDb](https://github.com/Denis-Guselnikov/api_yamdb)
+  
 ## Для реализации проекта используются:
+- Python 3.7.9
 - Django 2.2.16
 - Django REST Framework 3.12.4
+- gunicorn 20.0.4
+- psycopg2-binary
+- docker
+- docker-compose
 
-# Установка проекта
-## Клонировать репозиторий и перейти в него в командной строке:
-- git clone https://github.com/Denis-Guselnikov/api_yamdb
-- cd api_yamdb/
-## Cоздание виртуального окружения и его активация:
-- python -m venv venv
-- source venv/Scripts/activate
-## Установка зависимостей из requirements.txt:
-- pip install -r requirements.txt
-## Выполнение миграций:
-- python manage.py migrate
-## Запуск проекта:
-- cd yatube_api/
-- python3 manage.py runserver
+## Запуск проекта
+- Клонировать репозиторий https://github.com/Denis-Guselnikov/infra_sp2
+- Для работы с Базой Данных в (infra_sp2/infra/nginx) создайте файл .env с переменными
 
-## Документация к API
-http://127.0.0.1:8000/redoc/
+```
+DB_ENGINE=django.db.backends.<указываем, с какой БД работаем> 
 
-## Над проектом работали
-- Николай Морозов: отзывы, комментарии
-- Денис Гусельников: категории, жанры, произведения
-- Денис Попов: пользователи, регистрация и аутентификация
+DB_NAME=<Имя базы данных> 
+
+POSTGRES_USER=<логин для подключения к базе данных>
+
+POSTGRES_PASSWORD=<пароль для подключения к БД>
+
+DB_HOST=<название сервиса (контейнера)>
+
+DB_PORT=<порт для подключения к БД>
+```
+
+- Запустите контейнеры:
+```
+docker-compose up -d
+```
+
+- Выполните миграции:
+```
+docker-compose exec web python manage.py migrate
+```
+
+- Создайте суперюзера:
+```
+docker-compose exec web python manage.py createsuperuser
+```
+
+- Подгрузите статику:
+```
+docker-compose exec web python manage.py collectstatic --no-input
+```
+
+- Заполните базу данными:
+```
+docker-compose exec web python manage.py loaddata fixtures.json
+```
+
+- Проект доступен по адресам:
+<br> [http://localhost/](http://localhost/)
+<br>[http://localhost/admin/]( http://localhost/admin) - админ панель
+<br>[http://localhost/redoc/](http://localhost/redoc/) - документация проекта

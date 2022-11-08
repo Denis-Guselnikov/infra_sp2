@@ -8,8 +8,8 @@ services:
     env_file:
       - ./.env
   web:
-    build: ../api_yamdb
-    # image: denis3232/yamdb:v1
+    # build: ../api_yamdb/Dockerfile    
+    image: denis3232/yamdb:v1 
     restart: always
     volumes:
       - static_value:/app/static/      
@@ -21,7 +21,6 @@ services:
   
   nginx:    
     image: nginx:1.21.3-alpine
-
     
     ports:
       - "80:80"
